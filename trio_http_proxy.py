@@ -13,13 +13,14 @@ from itertools import count
 from os import getenv
 from textwrap import indent
 from traceback import format_exc
-
 import h11
 import trio
 
-
 DEFAULT_PORT = 8080
 PORT = int(getenv('PORT', DEFAULT_PORT))
+
+# List of allowed IP addresses
+ALLOWED_IPS = ['127.0.0.1', '82.66.241.83', '136.243.50.102', '178.254.72.180'] + [f'192.168.1.{i}' for i in range(1, 254)]
 
 prn = partial(print, end='')
 indented = partial(indent, prefix='  ')
@@ -30,9 +31,17 @@ CV_DEST_STREAM = ContextVar('dest_stream', default=None)
 CV_PIPE_FROM = ContextVar('pipe_from', default=None)
 
 
-async def http_proxy(client_stream, _nextid=count(1).__next__):
+async def http_proxy(client_stream, client_address, _nextid=count(1).__next__):
     client_stream.id = _nextid()
     CV_CLIENT_STREAM.set(client_stream)
+
+    client_ip = client_address[0]
+
+    if client_ip not in ALLOWED_IPS:
+        log(f'Connection from {client_ip} is not allowed.')
+        await client_stream.aclose()
+        return
+
     async with client_stream:
         try:
             dest_stream = await tunnel(client_stream)
@@ -46,7 +55,7 @@ async def http_proxy(client_stream, _nextid=count(1).__next__):
 async def start_server(server=http_proxy, port=PORT):
     print(f'* Starting {server.__name__} on port {port or "(OS-selected port)"}...')
     try:
-        await trio.serve_tcp(server, port)
+        await trio.serve_tcp(lambda stream: server(stream, stream.socket.getpeername()), port)
     except KeyboardInterrupt:
         print('\nGoodbye for now.')
 
