@@ -15,12 +15,15 @@ from textwrap import indent
 from traceback import format_exc
 import h11
 import trio
+import json
 
 DEFAULT_PORT = 8080
 PORT = int(getenv('PORT', DEFAULT_PORT))
 
 # List of allowed IP addresses
-ALLOWED_IPS = ['127.0.0.1', '82.66.241.83', '136.243.50.102', '178.254.72.180'] + [f'192.168.1.{i}' for i in range(1, 254)]
+with open('.allowed') as f:
+    ALLOWED_IPS = json.load(f)['ALLOWED_IPS']
+ALLOWED_IPS = ALLOWED_IPS + [f'192.168.1.{i}' for i in range(1, 254)]
 
 prn = partial(print, end='')
 indented = partial(indent, prefix='  ')
