@@ -1,4 +1,4 @@
-version: '3.8'
+name: imaginative_hazel
 services:
   main_app:
     cpu_shares: 10
@@ -22,3 +22,14 @@ services:
     network_mode: bridge
     privileged: false
     container_name: ""
+x-casaos:
+  author: self
+  category: self
+  hostname: ""
+  icon: https://icon.casaos.io/main/all/trio_http_proxy.png
+  index: /
+  port_map: ""
+  scheme: http
+  store_app_id: imaginative_hazel
+  title:
+    custom: trio_http_proxy
