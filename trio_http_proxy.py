@@ -39,6 +39,7 @@ async def http_proxy(client_stream, client_address, _nextid=count(1).__next__):
     CV_CLIENT_STREAM.set(client_stream)
 
     client_ip = client_address[0]
+    log('client_address: ', client_address)
 
     if client_ip not in ALLOWED_IPS:
         log(f'Connection from {client_ip} is not allowed.')
