@@ -10,6 +10,6 @@ RUN git clone https://github.com/NohamR/trio_http_proxy.git
 
 WORKDIR /app/trio_http_proxy
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements-lock.txt
 
 CMD ["python", "trio_http_proxy.py"]
